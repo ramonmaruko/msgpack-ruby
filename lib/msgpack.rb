@@ -7,5 +7,3 @@ begin
 rescue LoadError
   require File.join(here, 'msgpack', 'msgpack')
 end
-
-require 'msgpack/extended'
