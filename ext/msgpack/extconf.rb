@@ -7,7 +7,7 @@ have_func("rb_intern_str", ["ruby.h"])
 have_func("rb_sym2str", ["ruby.h"])
 have_func("rb_str_intern", ["ruby.h"])
 
-$CFLAGS << %[ -I.. -Wall -O3 -g -std=c99]
+$CFLAGS << %[ -I.. -Wall -O3 -g -std=c99 -fstrict-aliasing -Wstrict-aliasing ]
 #$CFLAGS << %[ -DDISABLE_RMEM]
 #$CFLAGS << %[ -DDISABLE_RMEM_REUSE_INTERNAL_FRAGMENT]
 #$CFLAGS << %[ -DDISABLE_BUFFER_READ_REFERENCE_OPTIMIZE]

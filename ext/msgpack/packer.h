@@ -19,6 +19,7 @@
 #define MSGPACK_RUBY_PACKER_H__
 
 #include "buffer.h"
+#include "extended_time.h"
 
 #ifndef MSGPACK_PACKER_IO_FLUSH_THRESHOLD_TO_WRITE_STRING_BODY
 #define MSGPACK_PACKER_IO_FLUSH_THRESHOLD_TO_WRITE_STRING_BODY (1024)
@@ -383,6 +384,38 @@ static inline void msgpack_packer_write_symbol_value(msgpack_packer_t* pk, VALUE
 #endif
 }
 
+static inline void msgpack_packer_write_time(msgpack_packer_t* pk, int64_t sec, uint32_t nsec, int16_t utc_offset, uint8_t isdst)
+{
+    msgpack_time_components tc = { 0 };
+
+    msgpack_time_set_secs(&tc, sec);
+    msgpack_time_set_nsecs(&tc, nsec);
+    msgpack_time_set_tz(&tc, utc_offset, isdst);
+
+    msgpack_time_payload *payload = msgpack_time_create_payload(&tc);
+
+    /* add 1 byte for descriptor */
+    msgpack_packer_write_ext_header(pk, (unsigned int)payload->size + 1, 0xfe);
+    msgpack_buffer_write_byte_and_data(PACKER_BUFFER_(pk), tc.descriptor, payload->payload, payload->size);
+
+    free(payload);
+}
+
+static inline void msgpack_packer_write_time_value(msgpack_packer_t* pk, VALUE v)
+{
+    ID s_sec        = rb_intern("to_i");
+    ID s_nsec       = rb_intern("tv_nsec");
+    ID s_utc_offset = rb_intern("utc_offset");
+    ID s_isdst      = rb_intern("isdst");
+
+    int64_t sec        = NUM2LL(rb_funcall(v, s_sec, 0));
+    uint32_t nsec      = NUM2ULONG(rb_funcall(v, s_nsec, 0));
+    int16_t utc_offset = FIX2INT(rb_funcall(v, s_utc_offset, 0)) / 60;
+    uint8_t isdst      = rb_funcall(v, s_isdst, 0);
+
+    msgpack_packer_write_time(pk, sec, nsec, utc_offset, isdst);
+}
+
 static inline void msgpack_packer_write_ext_value(msgpack_packer_t* pk, VALUE v)
 {
     int8_t type = NUM2INT(rb_funcall(v, rb_intern("type"), 0));
@@ -398,7 +431,6 @@ static inline void msgpack_packer_write_ext_value(msgpack_packer_t* pk, VALUE v)
     msgpack_packer_write_ext_header(pk, (unsigned int)len, type);
     msgpack_buffer_append_string(PACKER_BUFFER_(pk), data);
 }
-
 
 static inline void msgpack_packer_write_fixnum_value(msgpack_packer_t* pk, VALUE v)
 {
