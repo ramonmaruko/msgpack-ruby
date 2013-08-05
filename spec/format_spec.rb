@@ -276,6 +276,446 @@ describe MessagePack do
     match obj, "\xc9\x00\x01\x00\x01\x01" << ("a" * size)
   end
 
+  describe "Time packing" do
+    # test range of seconds
+    it "Time -(1 << 7)" do
+      obj = Time.at(-(1 << 7)).utc
+      match obj, "\xd5\xfe\x80\x80"
+    end
+
+    it "Time -(1 << 15)" do
+      obj = Time.at(-(1 << 15)).utc
+      match obj, "\xc7\x03\xfe\x84\x80\x00"
+    end
+
+    it "Time -(1 << 23)" do
+      obj = Time.at(-(1 << 23)).utc
+      match obj, "\xd6\xfe\x88\x80\x00\x00"
+    end
+
+    it "Time -(1 << 31)" do
+      obj = Time.at(-(1 << 31)).utc
+      match obj, "\xc7\x05\xfe\x8C\x80\x00\x00\x00"
+    end
+
+    it "Time -(1 << 39)" do
+      obj = Time.at(-(1 << 39)).utc
+      match obj, "\xc7\x06\xfe\x90\x80\x00\x00\x00\x00"
+    end
+
+    it "Time -(1 << 47)" do
+      obj = Time.at(-(1 << 47)).utc
+      match obj, "\xc7\x07\xfe\x94\x80\x00\x00\x00\x00\x00"
+    end
+
+    it "Time -(1 << 55)" do
+      obj = Time.at(-(1 << 55)).utc
+      match obj, "\xd7\xfe\x98\x80\x00\x00\x00\x00\x00\x00"
+    end
+
+    it "Time -(1 << 63)" do
+      obj = Time.at(-(1 << 63)).utc
+      match obj, "\xc7\x09\xfe\x9c\x80\x00\x00\x00\x00\x00\x00\x00"
+    end
+
+    it "Time (1 << 7) - 1" do
+      obj = Time.at((1 << 7) - 1).utc
+      match obj, "\xd5\xfe\x80\x7f"
+    end
+
+    it "Time (1 << 15) - 1" do
+      obj = Time.at((1 << 15) - 1).utc
+      match obj, "\xc7\x03\xfe\x84\x7f\xff"
+    end
+
+    it "Time (1 << 23) - 1" do
+      obj = Time.at((1 << 23) - 1).utc
+      match obj, "\xd6\xfe\x88\x7f\xff\xff"
+    end
+
+    it "Time (1 << 31) - 1" do
+      obj = Time.at((1 << 31) - 1).utc
+      match obj, "\xc7\x05\xfe\x8c\x7f\xff\xff\xff"
+    end
+
+    it "Time (1 << 39) - 1" do
+      obj = Time.at((1 << 39) - 1).utc
+      match obj, "\xc7\x06\xfe\x90\x7f\xff\xff\xff\xff"
+    end
+
+    it "Time (1 << 47) - 1" do
+      obj = Time.at((1 << 47) - 1).utc
+      match obj, "\xc7\x07\xfe\x94\x7f\xff\xff\xff\xff\xff"
+    end
+
+    it "Time (1 << 55) - 1" do
+      obj = Time.at((1 << 55) - 1).utc
+      match obj, "\xd7\xfe\x98\x7f\xff\xff\xff\xff\xff\xff"
+    end
+
+    it "Time (1 << 63) - 1" do
+      obj = Time.at((1 << 63) - 1).utc
+      match obj, "\xc7\x09\xfe\x9c\x7f\xff\xff\xff\xff\xff\xff\xff"
+    end
+
+    # test upper bounds
+    it "Time (1 << 7)" do
+      obj = Time.at((1 << 7)).utc
+      match obj, "\xc7\x03\xfe\x84\x00\x80"
+    end
+
+    it "Time (1 << 15)" do
+      obj = Time.at((1 << 15)).utc
+      match obj, "\xd6\xfe\x88\x00\x80\x00"
+    end
+
+    it "Time (1 << 23)" do
+      obj = Time.at((1 << 23)).utc
+      match obj, "\xc7\x05\xfe\x8c\x00\x80\x00\x00"
+    end
+
+    it "Time (1 << 31)" do
+      obj = Time.at((1 << 31)).utc
+      match obj, "\xc7\x06\xfe\x90\x00\x80\x00\x00\x00"
+    end
+
+    it "Time (1 << 39)" do
+      obj = Time.at((1 << 39)).utc
+      match obj, "\xc7\x07\xfe\x94\x00\x80\x00\x00\x00\x00"
+    end
+
+    it "Time (1 << 47)" do
+      obj = Time.at((1 << 47)).utc
+      match obj, "\xd7\xfe\x98\x00\x80\x00\x00\x00\x00\x00"
+    end
+
+    it "Time (1 << 55)" do
+      obj = Time.at((1 << 55)).utc
+      match obj, "\xc7\x09\xfe\x9c\x00\x80\x00\x00\x00\x00\x00\x00"
+    end
+
+    it "Time (1 << 63)" do
+      expect {
+        Time.at((1 << 63)).utc.to_msgpack
+      }.to raise_error RangeError
+
+    end
+
+    # test two's complement for seconds
+    it "Time -(1 << 7) + 1" do
+      obj = Time.at(-(1 << 7) +1).utc
+      match obj, "\xd5\xfe\x80\x81"
+    end
+
+    it "Time -(1 << 15) + 1" do
+      obj = Time.at(-(1 << 15) + 1).utc
+      match obj, "\xc7\x03\xfe\x84\x80\x01"
+    end
+
+    it "Time -(1 << 23 + 1)" do
+      obj = Time.at(-(1 << 23) + 1).utc
+      match obj, "\xd6\xfe\x88\x80\x00\x01"
+    end
+
+    it "Time -(1 << 31) + 1" do
+      obj = Time.at(-(1 << 31) + 1).utc
+      match obj, "\xc7\x05\xfe\x8C\x80\x00\x00\x01"
+    end
+
+    it "Time -(1 << 39) + 1" do
+      obj = Time.at(-(1 << 39) + 1).utc
+      match obj, "\xc7\x06\xfe\x90\x80\x00\x00\x00\x01"
+    end
+
+    it "Time -(1 << 47) + 1" do
+      obj = Time.at(-(1 << 47) + 1).utc
+      match obj, "\xc7\x07\xfe\x94\x80\x00\x00\x00\x00\x01"
+    end
+
+    it "Time -(1 << 55) + 1" do
+      obj = Time.at(-(1 << 55) + 1).utc
+      match obj, "\xd7\xfe\x98\x80\x00\x00\x00\x00\x00\x01"
+    end
+
+    it "Time -(1 << 63) + 1" do
+      obj = Time.at(-(1 << 63) + 1).utc
+      match obj, "\xc7\x09\xfe\x9C\x80\x00\x00\x00\x00\x00\x00\x01"
+    end
+
+    # test range of nsec with no seconds
+    it "Time nsec (1 << 8) - 1" do
+      nsec = Rational((1 << 8) - 1, 1_000_000_000)
+      obj = Time.at(nsec).utc
+      match obj, "\xd5\xfe\x40\xff"
+    end
+
+    it "Time nsec (1 << 16) - 1" do
+      nsec = Rational((1 << 16) - 1, 1_000_000_000)
+      obj = Time.at(nsec).utc
+      match obj, "\xc7\x03\xfe\x41\xff\xff"
+    end
+
+    it "Time nsec (1 << 24) - 1" do
+      nsec = Rational((1 << 24) - 1, 1_000_000_000)
+      obj = Time.at(nsec).utc
+      match obj, "\xd6\xfe\x42\xff\xff\xff"
+    end
+
+    it "Time 999_999_999ns" do
+      nsec = Rational(1) - Rational(1, 1_000_000_000)
+      obj = Time.at(nsec).utc
+      match obj, "\xc7\x05\xfe\x43\x3b\x9a\xc9\xff"
+    end
+
+    # test upper bounds
+    it "Time nsec (1 << 8)" do
+      nsec = Rational((1 << 8), 1_000_000_000)
+      obj = Time.at(nsec).utc
+      match obj, "\xc7\x03\xfe\x41\x01\x00"
+    end
+
+    it "Time nsec (1 << 16)" do
+      nsec = Rational((1 << 16), 1_000_000_000)
+      obj = Time.at(nsec).utc
+      match obj, "\xd6\xfe\x42\x01\x00\x00"
+    end
+
+    it "Time nsec (1 << 24)" do
+      nsec = Rational((1 << 24), 1_000_000_000)
+      obj = Time.at(nsec).utc
+      match obj, "\xc7\x05\xfe\x43\x01\x00\x00\x00"
+    end
+
+
+    # seconds with 999_999_999ns
+    it "Time -(1 << 7)s 999_999_999ns" do
+      obj = Time.at(-(1 << 7) + Rational(1) - Rational(1, 1_000_000_000)).utc
+      match obj, "\xc7\x06\xfe\xc3\x80\x3b\x9a\xc9\xff"
+    end
+
+    it "Time -(1 << 15)s 999_999_999ns" do
+      obj = Time.at(-(1 << 15) + Rational(1) - Rational(1, 1_000_000_000)).utc
+      match obj, "\xc7\x07\xfe\xc7\x80\x00\x3b\x9a\xc9\xff"
+    end
+
+    it "Time -(1 << 23)s 999_999_999ns" do
+      obj = Time.at(-(1 << 23) + Rational(1) - Rational(1, 1_000_000_000)).utc
+      match obj, "\xd7\xfe\xcb\x80\x00\x00\x3b\x9a\xc9\xff"
+    end
+
+    it "Time -(1 << 31)s 999_999_999ns" do
+      obj = Time.at(-(1 << 31) + Rational(1) - Rational(1, 1_000_000_000)).utc
+      match obj, "\xc7\x09\xfe\xcf\x80\x00\x00\x00\x3b\x9a\xc9\xff"
+    end
+
+    it "Time -(1 << 39)s 999_999_999ns" do
+      obj = Time.at(-(1 << 39) + Rational(1) - Rational(1, 1_000_000_000)).utc
+      match obj, "\xc7\x0a\xfe\xd3\x80\x00\x00\x00\x00\x3b\x9a\xc9\xff"
+    end
+
+    it "Time -(1 << 47)s 999_999_999ns" do
+      obj = Time.at(-(1 << 47) + Rational(1) - Rational(1, 1_000_000_000)).utc
+      match obj, "\xc7\x0b\xfe\xd7\x80\x00\x00\x00\x00\x00\x3b\x9a\xc9\xff"
+    end
+
+    it "Time -(1 << 55)s 999_999_999ns" do
+      obj = Time.at(-(1 << 55) + Rational(1) - Rational(1, 1_000_000_000)).utc
+      match obj, "\xc7\x0c\xfe\xdb\x80\x00\x00\x00\x00\x00\x00\x3b\x9a\xc9\xff"
+    end
+
+    it "Time -(1 << 63)s 999_999_999ns" do
+      obj = Time.at(-(1 << 63) + Rational(1) - Rational(1, 1_000_000_000)).utc
+      match obj, "\xc7\x0d\xfe\xdf\x80\x00\x00\x00\x00\x00\x00\x00\x3b\x9a\xc9\xff"
+    end
+
+    it "Time (1 << 7) - 1s 999_999_999ns" do
+      obj = Time.at((1 << 7) + Rational(1) - Rational(1, 1_000_000_000) - 1).utc
+      match obj, "\xc7\x06\xfe\xc3\x7f\x3b\x9a\xc9\xff"
+    end
+
+    it "Time (1 << 15) - 1s 999_999_999ns" do
+      obj = Time.at((1 << 15) + Rational(1) - Rational(1, 1_000_000_000) - 1).utc
+      match obj, "\xc7\x07\xfe\xc7\x7f\xff\x3b\x9a\xc9\xff"
+    end
+
+    it "Time (1 << 23) - 1s 999_999_999ns" do
+      obj = Time.at((1 << 23) + Rational(1) - Rational(1, 1_000_000_000) - 1).utc
+      match obj, "\xd7\xfe\xcb\x7f\xff\xff\x3b\x9a\xc9\xff"
+    end
+
+    it "Time (1 << 31) - 1s 999_999_999ns" do
+      obj = Time.at((1 << 31) + Rational(1) - Rational(1, 1_000_000_000) - 1).utc
+      match obj, "\xc7\x09\xfe\xcf\x7f\xff\xff\xff\x3b\x9a\xc9\xff"
+    end
+
+    it "Time (1 << 39) - 1s 999_999_999ns" do
+      obj = Time.at((1 << 39) + Rational(1) - Rational(1, 1_000_000_000) - 1).utc
+      match obj, "\xc7\x0a\xfe\xd3\x7f\xff\xff\xff\xff\x3b\x9a\xc9\xff"
+    end
+
+    it "Time (1 << 47) - 1s 999_999_999ns" do
+      obj = Time.at((1 << 47) + Rational(1) - Rational(1, 1_000_000_000) - 1).utc
+      match obj, "\xc7\x0b\xfe\xd7\x7f\xff\xff\xff\xff\xff\x3b\x9a\xc9\xff"
+    end
+
+    it "Time (1 << 55) - 1s 999_999_999ns" do
+      obj = Time.at((1 << 55) + Rational(1) - Rational(1, 1_000_000_000) - 1).utc
+      match obj, "\xc7\x0c\xfe\xdb\x7f\xff\xff\xff\xff\xff\xff\x3b\x9a\xc9\xff"
+    end
+
+    it "Time (1 << 63) - 1s 999_999_999ns" do
+      obj = Time.at((1 << 63) + Rational(1) - Rational(1, 1_000_000_000) - 1).utc
+      match obj, "\xc7\x0d\xfe\xdf\x7f\xff\xff\xff\xff\xff\xff\xff\x3b\x9a\xc9\xff"
+    end
+
+    # timezone stuffs
+    it "Time Aug 11 1989 10:08PM +8:00" do
+      obj = Time.new(2013, 8, 11, 22, 8, nil, "+08:00")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x01\xe0"
+    end
+
+    it "Time Aug 11 1989 10:08PM -12:00" do
+      obj = Time.new(2013, 8, 11, 2, 8, nil, "-12:00")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3d\x30"
+    end
+
+    it "-(1 << 1)" do
+      obj = Time.new(2013, 8, 11, 14, 6, nil, "-00:02")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3f\xfe"
+    end
+
+    it "-(1 << 2)" do
+      obj = Time.new(2013, 8, 11, 14, 4, nil, "-00:04")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3f\xfc"
+    end
+
+    it "-(1 << 3)" do
+      obj = Time.new(2013, 8, 11, 14, 0, nil, "-00:08")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3f\xf8"
+    end
+
+    it "-(1 << 4)" do
+      obj = Time.new(2013, 8, 11, 13, 52, nil, "-00:16")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3f\xf0"
+    end
+
+    it "-(1 << 5)" do
+      obj = Time.new(2013, 8, 11, 13, 36, nil, "-00:32")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3f\xe0"
+    end
+
+    it "-(1 << 6)" do
+      obj = Time.new(2013, 8, 11, 13, 4, nil, "-01:04")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3f\xc0"
+    end
+
+    it "-(1 << 7)" do
+      obj = Time.new(2013, 8, 11, 12, 0, nil, "-02:08")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3f\x80"
+    end
+
+    it "-(1 << 8)" do
+      obj = Time.new(2013, 8, 11, 9, 52, nil, "-04:16")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3f\x00"
+    end
+
+    it "-(1 << 9)" do
+      obj = Time.new(2013, 8, 11, 5, 36, nil, "-08:32")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3e\x00"
+    end
+
+    it "-(1 << 10)" do
+      obj = Time.new(2013, 8, 10, 21, 4, nil, "-17:04")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3c\x00"
+    end
+
+    it "-23:59 Minimum limit of Ruby" do
+      obj = Time.new(2013, 8, 10, 14, 9, nil, "-23:59")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x3a\x61"
+    end
+
+    it "(1 << 1) - 1" do
+      obj = Time.new(2013, 8, 11, 14, 9, nil, "+00:01")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x00\x01"
+    end
+
+    it "(1 << 2) - 1" do
+      obj = Time.new(2013, 8, 11, 14, 11, nil, "+00:03")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x00\x03"
+    end
+
+    it "(1 << 3) - 1" do
+      obj = Time.new(2013, 8, 11, 14, 15, nil, "+00:07")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x00\x07"
+    end
+
+    it "(1 << 4) - 1" do
+      obj = Time.new(2013, 8, 11, 14, 23, nil, "+00:15")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x00\x0f"
+    end
+
+    it "(1 << 5) - 1" do
+      obj = Time.new(2013, 8, 11, 14, 39, nil, "+00:31")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x00\x1f"
+    end
+
+    it "(1 << 6) - 1" do
+      obj = Time.new(2013, 8, 11, 15, 13, nil, "+01:05")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x00\x41"
+    end
+
+    it "(1 << 7) - 1" do
+      obj = Time.new(2013, 8, 11, 16, 15, nil, "+02:07")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x00\x7f"
+    end
+
+    it "(1 << 8) - 1" do
+      obj = Time.new(2013, 8, 11, 18, 23, nil, "+04:15")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x00\xff"
+    end
+
+    it "(1 << 9) - 1" do
+      obj = Time.new(2013, 8, 11, 22, 40, nil, "+08:32")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x02\x00"
+    end
+
+    it "(1 << 10) - 1" do
+      obj = Time.new(2013, 8, 12, 7, 11, nil, "+17:03")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x03\xff"
+    end
+
+    it "23:59 Maximum limit of Ruby" do
+      obj = Time.new(2013, 8, 12, 14, 7, nil, "+23:59")
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\x05\x9f"
+    end
+
+    # dst
+    it "dst" do
+      obj = with_tz("America/Los_Angeles") { Time.new(2013, 8, 11, 7, 8) }
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\xfe\x5c"
+    end
+
+    it "positive dst" do
+      obj = with_tz("Asia/Damascus") { Time.new(2013, 8, 11, 17, 8) }
+      match obj, "\xc7\x07\xfe\xac\x52\x07\x9a\xc0\xc0\xb4"
+    end
+
+    # spec examples
+    it "Jan 1, 1970" do
+      obj = Time.gm(1970, 1, 1)
+      match obj, "\xd4\xfe\x00"
+    end
+
+    it "Apr 1, 1970" do
+      obj = Time.gm(1970, 4, 1)
+      match obj, "\xd6\xfe\x88\x76\xa7\x00"
+    end
+
+    it "Jan 1, 2050 +200ns" do
+      obj = Time.gm(2050, 1, 1, 0, 0, 0, 0.2)
+      match obj, "\xc7\x07\xfe\xd0\x00\x96\x7a\x76\x00\xc8"
+    end
+  end
 
 ## FIXME
 #  it "{0=>0, 1=>1, ..., 14=>14}" do
@@ -325,6 +765,22 @@ describe MessagePack do
   def match(obj, buf)
     raw = obj.to_msgpack.to_s
     raw.should == buf
+  end
+
+  def with_tz(tz)
+    if /linux/ =~ RUBY_PLATFORM || ENV["RUBY_FORCE_TIME_TZ_TEST"] == "yes"
+      old = ENV["TZ"]
+      begin
+        ENV["TZ"] = tz
+        yield
+      ensure
+        ENV["TZ"] = old
+      end
+    else
+      if ENV["TZ"] == tz
+        yield
+      end
+    end
   end
 end
 
