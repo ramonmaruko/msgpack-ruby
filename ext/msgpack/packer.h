@@ -379,7 +379,7 @@ static inline void msgpack_packer_write_symbol_value(msgpack_packer_t* pk, VALUE
     msgpack_buffer_append(PACKER_BUFFER_(pk), name, len);
 }
 
-static inline void msgpack_packer_write_time(msgpack_packer_t* pk, int64_t sec, uint32_t nsec, int16_t utc_offset, uint8_t isdst)
+static inline void msgpack_packer_write_time(msgpack_packer_t* pk, int64_t sec, uint32_t nsec, int16_t utc_offset, uint8_t isdst, int8_t type)
 {
     msgpack_time_components tc = { 0 };
 
@@ -390,13 +390,13 @@ static inline void msgpack_packer_write_time(msgpack_packer_t* pk, int64_t sec, 
     msgpack_time_payload *payload = msgpack_time_create_payload(&tc);
 
     /* add 1 byte for descriptor */
-    msgpack_packer_write_ext_header(pk, (unsigned int)payload->size + 1, 0xfe);
+    msgpack_packer_write_ext_header(pk, (unsigned int)payload->size + 1, type);
     msgpack_buffer_write_byte_and_data(PACKER_BUFFER_(pk), tc.descriptor, payload->payload, payload->size);
 
     free(payload);
 }
 
-static inline void msgpack_packer_write_time_value(msgpack_packer_t* pk, VALUE v)
+static inline void msgpack_packer_write_time_value(msgpack_packer_t* pk, VALUE v, int8_t type)
 {
     ID s_sec        = rb_intern("to_i");
     ID s_nsec       = rb_intern("tv_nsec");
@@ -408,7 +408,7 @@ static inline void msgpack_packer_write_time_value(msgpack_packer_t* pk, VALUE v
     int16_t utc_offset = FIX2INT(rb_funcall(v, s_utc_offset, 0)) / 60;
     uint8_t isdst      = rb_funcall(v, s_isdst, 0);
 
-    msgpack_packer_write_time(pk, sec, nsec, utc_offset, isdst);
+    msgpack_packer_write_time(pk, sec, nsec, utc_offset, isdst, type);
 }
 
 static inline void msgpack_packer_write_ext_value(msgpack_packer_t* pk, VALUE v)
