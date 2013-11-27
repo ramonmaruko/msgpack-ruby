@@ -93,7 +93,7 @@ static VALUE Symbol_to_msgpack(int argc, VALUE* argv, VALUE self)
 static VALUE Time_to_msgpack(int argc, VALUE* argv, VALUE self)
 {
     ENSURE_PACKER(argc, argv, packer, pk);
-    msgpack_packer_write_time_value(pk, self);
+    msgpack_packer_write_time_value(pk, self, 0xfe);
     return packer;
 }
 
