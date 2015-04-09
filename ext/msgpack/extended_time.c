@@ -139,3 +139,8 @@ msgpack_time_payload *msgpack_time_create_payload(msgpack_time_components *tc)
 
     return tp;
 }
+
+void msgpack_time_free_payload(msgpack_time_payload *tp) {
+    free(tp->payload);
+    free(tp);
+}

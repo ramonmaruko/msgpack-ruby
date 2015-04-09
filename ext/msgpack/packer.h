@@ -398,7 +398,7 @@ static inline void msgpack_packer_write_time(msgpack_packer_t* pk, int64_t sec, 
     msgpack_packer_write_ext_header(pk, (unsigned int)payload->size + 1, type);
     msgpack_buffer_write_byte_and_data(PACKER_BUFFER_(pk), tc.descriptor, payload->payload, payload->size);
 
-    free(payload);
+    msgpack_time_free_payload(payload);
 }
 
 static inline void msgpack_packer_write_time_value(msgpack_packer_t* pk, VALUE v, int8_t type)
