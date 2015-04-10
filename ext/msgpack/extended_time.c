@@ -89,7 +89,7 @@ void msgpack_time_set_nsecs(msgpack_time_components *tc, const uint32_t tv_nsec)
     tc->descriptor |= masks[tc->nsec.size];
 }
 
-void msgpack_time_set_tz(msgpack_time_components *tc, const int16_t utc_offset, const int8_t isdst)
+void msgpack_time_set_tz(msgpack_time_components *tc, const int16_t utc_offset, const bool isdst)
 {
     tc->utc_offset.value.i16 = utc_offset;
 
@@ -99,7 +99,7 @@ void msgpack_time_set_tz(msgpack_time_components *tc, const int16_t utc_offset, 
         tc->utc_offset.size = 2;
         tc->descriptor |= 0x20;
 
-        if(isdst == Qtrue) {
+        if(isdst) {
             tc->utc_offset.value.i16 |= 0xc000;
         } else {
             tc->utc_offset.value.i16 &= 0x3fff;

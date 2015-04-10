@@ -384,7 +384,7 @@ static inline void msgpack_packer_write_symbol_value(msgpack_packer_t* pk, VALUE
 #endif
 }
 
-static inline void msgpack_packer_write_time(msgpack_packer_t* pk, int64_t sec, uint32_t nsec, int16_t utc_offset, uint8_t isdst, int8_t type)
+static inline void msgpack_packer_write_time(msgpack_packer_t* pk, int64_t sec, uint32_t nsec, int16_t utc_offset, bool isdst, int8_t type)
 {
     msgpack_time_components tc = { 0 };
 
@@ -412,7 +412,7 @@ static inline void msgpack_packer_write_time_value(msgpack_packer_t* pk, VALUE v
     int64_t sec        = NUM2LL(rb_funcall(v, s_sec, 0));
     uint32_t nsec      = NUM2ULONG(rb_funcall(v, s_nsec, 0));
     int16_t utc_offset = FIX2INT(rb_funcall(v, s_utc_offset, 0)) / 60;
-    uint8_t isdst      = rb_funcall(v, s_isdst, 0);
+    bool isdst         = RTEST(rb_funcall(v, s_isdst, 0));
 
     msgpack_packer_write_time(pk, sec, nsec, utc_offset, isdst, type);
 }

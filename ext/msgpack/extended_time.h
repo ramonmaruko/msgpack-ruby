@@ -50,7 +50,7 @@ struct msgpack_time_components {
 
 void msgpack_time_set_secs(msgpack_time_components *tc, const int64_t tv_sec);
 void msgpack_time_set_nsecs(msgpack_time_components *tc, const uint32_t tv_nsec);
-void msgpack_time_set_tz(msgpack_time_components *tc, const int16_t utc_offset, const int8_t isdst);
+void msgpack_time_set_tz(msgpack_time_components *tc, const int16_t utc_offset, const bool isdst);
 msgpack_time_payload *msgpack_time_create_payload(msgpack_time_components *tc);
 void msgpack_time_free_payload(msgpack_time_payload *tp);
 
